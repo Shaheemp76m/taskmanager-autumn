@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow - Material Autumn Task Manager</title>
+  
+  <!-- Fonts: Roboto & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23B84A28'><path d='M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z'/></svg>">
+</head>
+<body>
+  <!-- Material Top App Bar -->
+  <header class="md-top-app-bar">
+    <div class="app-bar-content">
+      <div class="app-bar-branding">
+        <span class="material-symbols-outlined brand-icon">park</span>
+        <div class="brand-text">
+          <h1>TaskFlow</h1>
+          <span class="brand-badge">Autumn</span>
+        </div>
+      </div>
+
+      <!-- Search Field -->
+      <div class="md-search-container">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input type="text" id="globalSearchInput" class="md-search-input" placeholder="Search tasks, notes..." autocomplete="off">
+        <button class="md-icon-btn search-clear-btn" id="searchClearBtn" title="Clear search" style="display: none;">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="app-bar-actions">
+        <!-- Sound Toggle -->
+        <button class="md-icon-btn" id="soundToggleBtn" title="Toggle audio feedback" aria-label="Toggle Sound">
+          <span class="material-symbols-outlined" id="soundOnIcon">volume_up</span>
+          <span class="material-symbols-outlined" id="soundOffIcon" style="display: none;">volume_off</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button class="md-icon-btn" id="themeToggleBtn" title="Toggle Autumn Dark/Light mode" aria-label="Toggle Theme">
+          <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+        </button>
+
+        <!-- Menu Dropdown -->
+        <div class="dropdown-wrapper">
+          <button class="md-icon-btn" id="menuBtn" title="Options" aria-label="Options">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+          <div class="md-menu" id="optionsMenu">
+            <button class="md-menu-item" id="btnLoadDemoData">
+              <span class="material-symbols-outlined">restart_alt</span>
+              <span>Load Sample Tasks</span>
+            </button>
+            <button class="md-menu-item" id="btnExportJSON">
+              <span class="material-symbols-outlined">file_download</span>
+              <span>Export JSON Backup</span>
+            </button>
+            <label class="md-menu-item cursor-pointer">
+              <span class="material-symbols-outlined">file_upload</span>
+              <span>Import JSON Backup</span>
+              <input type="file" id="importFileInput" accept=".json" style="display: none;">
+            </label>
+            <div class="md-menu-divider"></div>
+            <button class="md-menu-item text-danger" id="btnClearAllData">
+              <span class="material-symbols-outlined">delete_sweep</span>
+              <span>Clear All Tasks</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Material Container -->
+  <main class="md-container">
+    
+    <!-- Quick Inline Task Input Card -->
+    <div class="md-card inline-add-card">
+      <div class="inline-input-row">
+        <span class="material-symbols-outlined inline-icon text-primary">add_task</span>
+        <input type="text" id="inlineTaskInput" class="inline-text-field" placeholder="Add a new task... (Press Enter)" autocomplete="off">
+        <button class="md-btn md-btn-filled" id="btnInlineAdd">
+          <span>Add</span>
+        </button>
+      </div>
+      <div class="inline-meta-row">
+        <div class="inline-meta-item">
+          <span class="material-symbols-outlined meta-icon">category</span>
+          <select id="inlineCategorySelect" class="inline-select" aria-label="Task category"></select>
+        </div>
+        <div class="inline-meta-item">
+          <span class="material-symbols-outlined meta-icon">flag</span>
+          <select id="inlinePrioritySelect" class="inline-select" aria-label="Task priority">
+            <option value="medium">Medium Priority</option>
+            <option value="urgent">Urgent Priority</option>
+            <option value="high">High Priority</option>
+            <option value="low">Low Priority</option>
+          </select>
+        </div>
+        <div class="inline-meta-item">
+          <span class="material-symbols-outlined meta-icon">calendar_today</span>
+          <input type="date" id="inlineDueDate" class="inline-date-picker" aria-label="Due date">
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & Category Chips Navigation -->
+    <section class="filter-section">
+      <!-- Status Tabs -->
+      <div class="status-tabs-container">
+        <button class="md-tab active" data-status-filter="all">
+          <span>All</span>
+          <span class="tab-badge" id="badgeAll">0</span>
+        </button>
+        <button class="md-tab" data-status-filter="active">
+          <span>Active</span>
+          <span class="tab-badge" id="badgeActive">0</span>
+        </button>
+        <button class="md-tab" data-status-filter="completed">
+          <span>Completed</span>
+          <span class="tab-badge" id="badgeCompleted">0</span>
+        </button>
+      </div>
+
+      <!-- Category Filter Chips -->
+      <div class="category-chips-scroll" id="categoryChipsContainer">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Tasks Summary Bar -->
+    <div class="tasks-summary-bar">
+      <div class="summary-text">
+        <span id="summaryText">0 tasks</span>
+      </div>
+      <div class="sort-wrapper">
+        <span class="material-symbols-outlined sort-icon">sort</span>
+        <select id="sortSelect" class="md-sort-select" aria-label="Sort tasks">
+          <option value="dueDateAsc">Due date (Soonest)</option>
+          <option value="priority">Priority (Highest)</option>
+          <option value="titleAsc">Title (A - Z)</option>
+          <option value="createdDesc">Recently added</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Task Cards Container -->
+    <div class="task-cards-list" id="taskCardsList">
+      <!-- Injected by JavaScript -->
+    </div>
+
+  </main>
+
+  <!-- Material Floating Action Button (FAB) -->
+  <button class="md-fab" id="fabAddTaskBtn" title="Create New Task" aria-label="Create New Task">
+    <span class="material-symbols-outlined fab-icon">add</span>
+    <span class="fab-label">New Task</span>
+  </button>
+
+  <!-- Material Dialog Modal: Add / Edit Task -->
+  <div class="md-dialog-backdrop" id="taskDialogBackdrop" style="display: none;">
+    <div class="md-dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+      <div class="md-dialog-header">
+        <h2 id="dialogTitle">Create Task</h2>
+        <button class="md-icon-btn" id="dialogCloseBtn" aria-label="Close dialog">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="taskDialogForm" class="md-dialog-body">
+        <input type="hidden" id="dialogTaskId">
+
+        <!-- Title Outlined Input -->
+        <div class="md-text-field-container">
+          <label for="dialogTitleInput" class="md-text-field-label">Task Title <span class="required">*</span></label>
+          <input type="text" id="dialogTitleInput" class="md-text-input" placeholder="e.g. Gather autumn harvest notes" required autocomplete="off">
+        </div>
+
+        <!-- Description Outlined Input -->
+        <div class="md-text-field-container">
+          <label for="dialogDescInput" class="md-text-field-label">Description & Notes</label>
+          <textarea id="dialogDescInput" class="md-text-input md-textarea" rows="3" placeholder="Add details or context..."></textarea>
+        </div>
+
+        <!-- Category & Priority Row -->
+        <div class="dialog-row-2">
+          <div class="md-text-field-container">
+            <label for="dialogCategorySelect" class="md-text-field-label">Category</label>
+            <select id="dialogCategorySelect" class="md-text-input md-select">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div class="md-text-field-container">
+            <label for="dialogPrioritySelect" class="md-text-field-label">Priority</label>
+            <select id="dialogPrioritySelect" class="md-text-input md-select">
+              <option value="urgent">Urgent Priority</option>
+              <option value="high">High Priority</option>
+              <option value="medium" selected>Medium Priority</option>
+              <option value="low">Low Priority</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Due Date & Status Row -->
+        <div class="dialog-row-2">
+          <div class="md-text-field-container">
+            <label for="dialogDueDateInput" class="md-text-field-label">Due Date & Time</label>
+            <input type="datetime-local" id="dialogDueDateInput" class="md-text-input">
+          </div>
+          <div class="md-text-field-container">
+            <label for="dialogStatusSelect" class="md-text-field-label">Status</label>
+            <select id="dialogStatusSelect" class="md-text-input md-select">
+              <option value="todo">To Do (Active)</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dialog Footer Actions -->
+        <div class="md-dialog-actions">
+          <button type="button" class="md-btn md-btn-text" id="dialogCancelBtn">CANCEL</button>
+          <button type="submit" class="md-btn md-btn-filled" id="dialogSaveBtn">SAVE TASK</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Material Toast (Snackbar) -->
+  <div class="md-snackbar-container" id="snackbarContainer" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
